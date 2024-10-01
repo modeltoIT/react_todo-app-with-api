@@ -9,8 +9,7 @@ interface Props {
   setTempTodo: (todo: Todo | null) => void;
   onSuccess: (todos: Todo[]) => void;
   errorMessage: string;
-  isAllCompleted: boolean;
-  setIsAllCompleted: (value: boolean) => void;
+  setIdsForStatusChange: (ids: number[]) => void;
 }
 
 export const Header: React.FC<Props> = ({
@@ -19,12 +18,12 @@ export const Header: React.FC<Props> = ({
   setTempTodo,
   onSuccess,
   errorMessage,
-  isAllCompleted,
-  setIsAllCompleted,
+  setIdsForStatusChange,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const isAllCompleted = !todos.some(todo => !todo.completed);
 
   useEffect(() => {
     if (input.current) {
@@ -72,7 +71,11 @@ export const Header: React.FC<Props> = ({
   };
 
   const btnHandler = () => {
-    setIsAllCompleted(!isAllCompleted);
+    setIdsForStatusChange(
+      todos
+        .filter(todo => todo.completed === isAllCompleted)
+        .map(todo => todo.id),
+    );
   };
 
   return (

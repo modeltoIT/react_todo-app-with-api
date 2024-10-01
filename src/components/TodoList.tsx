@@ -12,6 +12,8 @@ interface Props {
   resetIdsToDelete: (todoIds: number[]) => void;
   handleDelete: (id: number) => void;
   handleUpdate: (todo: Todo) => Promise<void>;
+  idsForStatusChange: number[];
+  setIdsForStatusChange: (ids: number[]) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -22,6 +24,8 @@ export const TodoList: React.FC<Props> = ({
   resetIdsToDelete,
   handleDelete,
   handleUpdate,
+  idsForStatusChange,
+  setIdsForStatusChange,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -37,6 +41,8 @@ export const TodoList: React.FC<Props> = ({
           resetIdsToDelete={resetIdsToDelete}
           handleDelete={handleDelete}
           handleUpdate={handleUpdate}
+          idsForStatusChange={idsForStatusChange}
+          setIdsForStatusChange={setIdsForStatusChange}
         />
       ))}
 

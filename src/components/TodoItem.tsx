@@ -13,6 +13,7 @@ interface Props {
   resetIdsToDelete: (todoIds: number[]) => void;
   handleDelete: (id: number) => void;
   handleUpdate: (todo: Todo) => Promise<void>;
+  idsForStatusChange: number[];
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -25,17 +26,18 @@ export const TodoItem: React.FC<Props> = ({
   resetIdsToDelete,
   handleDelete,
   handleUpdate,
+  idsForStatusChange,
 }) => {
   const [value, setValue] = useState(title);
   const [deletedTodoId, setDeletedTodoId] = useState(0);
   const [isToggling, setIsToggling] = useState(false);
 
+  const deleteTodos = (todoId: number) => action.deleteTodo(todoId);
 
   const deleteTodo: React.MouseEventHandler<HTMLButtonElement> = () => {
     setDeletedTodoId(id);
 
-    action
-      .deleteTodo(id)
+    deleteTodos(id)
       .then(() => {
         handleDelete(id);
       })
@@ -45,11 +47,10 @@ export const TodoItem: React.FC<Props> = ({
 
   useEffect(() => {
     if (idsToDelete?.includes(id)) {
-      action
-        .deleteTodo(id)
+      deleteTodos(id)
         .then(() => {
           handleDelete(id);
-          resetIdsToDelete(idsToDelete?.filter(todoId => todoId !== id));
+          resetIdsToDelete(idsToDelete.filter(todoId => todoId !== id));
         })
         .catch(onError);
     }
@@ -61,6 +62,12 @@ export const TodoItem: React.FC<Props> = ({
       setIsToggling(isToggling),
     );
   };
+
+  useEffect(() => {
+    if (idsForStatusChange?.includes(id)) {
+      toggleHandler();
+    }
+  }, [idsForStatusChange]);
 
   return (
     <div data-cy="Todo" className={classNames('todo', { completed: status })}>

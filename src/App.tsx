@@ -16,7 +16,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [idsToDelete, setIdsToDelete] = useState<number[]>([]);
   const [isHiddenError, setIsHiddenError] = useState(true);
-  const [isAllCompleted, setIsAllCompleted] = useState<boolean>(false);
+  const [idsForStatusChange, setIdsForStatusChange] = useState<number[]>([]);
   const timeoutRef = useRef<number | null>(null);
 
   const removeErrorMessage = () => {
@@ -69,7 +69,6 @@ export const App: React.FC = () => {
       .then(serverTodos => {
         setTodos(serverTodos);
         setFilteredTodos(serverTodos);
-        setIsAllCompleted(!serverTodos.some(todo => !todo.completed));
       })
       .catch(errorMessageHandler);
   }, []);
@@ -101,8 +100,7 @@ export const App: React.FC = () => {
           onSuccess={setTodos}
           setTempTodo={setTempTodo}
           errorMessage={errorMessage}
-          isAllCompleted={isAllCompleted}
-          setIsAllCompleted={setIsAllCompleted}
+          setIdsForStatusChange={setIdsForStatusChange}
         />
 
         <TodoList
@@ -114,6 +112,8 @@ export const App: React.FC = () => {
           onError={errorMessageHandler}
           handleDelete={handleDelete}
           handleUpdate={handleUpdate}
+          idsForStatusChange={idsForStatusChange}
+          setIdsForStatusChange={setIdsForStatusChange}
         />
 
         {/* Hide the footer if there are no todos */}

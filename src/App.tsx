@@ -1,26 +1,139 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { changeTodo, getTodos, USER_ID } from './api/todos';
+import { Todo } from './types/Todo';
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { ErrorMessage } from './components/ErrorMessage';
+import { TodoFilter } from './types/TodoFilter';
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [filterBy, setFilterBy] = useState<TodoFilter>('all');
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [idsToDelete, setIdsToDelete] = useState<number[]>([]);
+  const [isHiddenError, setIsHiddenError] = useState(true);
+  const [isAllCompleted, setIsAllCompleted] = useState<boolean>(false);
+  const timeoutRef = useRef<number | null>(null);
+
+  const removeErrorMessage = () => {
+    setIsHiddenError(true);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
+      setErrorMessage('');
+    }, 1000);
+  };
+
+  const handleDelete = (id: number) => {
+    setTodos(prevTodo => prevTodo.filter(todo => todo.id !== id));
+  };
+
+  const errorMessageHandler = useCallback((er: Error) => {
+    setErrorMessage(er.message ?? String(er));
+    setIsHiddenError(false);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
+      removeErrorMessage();
+    }, 3000);
+  }, []);
+
+  const handleUpdate = (updatedTodo: Todo): Promise<void> => {
+    return changeTodo(updatedTodo)
+      .then(result => {
+        setTodos(prevTodo =>
+          prevTodo.map(todo => {
+            if (updatedTodo.id === todo.id) {
+              return result;
+            }
+
+            return todo;
+          }),
+        );
+      })
+      .catch(errorMessageHandler);
+  };
+
+  useEffect(() => {
+    getTodos()
+      .then(serverTodos => {
+        setTodos(serverTodos);
+        setFilteredTodos(serverTodos);
+        setIsAllCompleted(!serverTodos.some(todo => !todo.completed));
+      })
+      .catch(errorMessageHandler);
+  }, []);
+
+  useEffect(() => {
+    let filteredTD = todos;
+
+    if (filterBy !== 'all') {
+      filteredTD = todos.filter(todo =>
+        filterBy === 'active' ? !todo.completed : todo.completed,
+      );
+    }
+
+    setFilteredTodos(filteredTD);
+  }, [filterBy, todos]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">
-          React Todo App - Add and Delete
-        </a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          todos={todos}
+          onError={errorMessageHandler}
+          onSuccess={setTodos}
+          setTempTodo={setTempTodo}
+          errorMessage={errorMessage}
+          isAllCompleted={isAllCompleted}
+          setIsAllCompleted={setIsAllCompleted}
+        />
+
+        <TodoList
+          renderedList={filteredTodos}
+          tempTodo={tempTodo}
+          todos={todos}
+          idsToDelete={idsToDelete}
+          resetIdsToDelete={setIdsToDelete}
+          onError={errorMessageHandler}
+          handleDelete={handleDelete}
+          handleUpdate={handleUpdate}
+        />
+
+        {/* Hide the footer if there are no todos */}
+        {(tempTodo || !!todos.length) && (
+          <Footer
+            filterBy={filterBy}
+            setFilter={setFilterBy}
+            todos={todos}
+            onClearCompleted={setIdsToDelete}
+          />
+        )}
+      </div>
+
+      {/* DON'T use conditional rendering to hide the notification */}
+      {/* Add the 'hidden' class to hide the message smoothly */}
+      <ErrorMessage
+        errorMessage={errorMessage}
+        removeError={removeErrorMessage}
+        isHiddenError={isHiddenError}
+      />
+    </div>
   );
 };

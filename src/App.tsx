@@ -10,7 +10,6 @@ import { TodoFilter } from './types/TodoFilter';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [filterBy, setFilterBy] = useState<TodoFilter>('all');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -72,12 +71,11 @@ export const App: React.FC = () => {
     getTodos()
       .then(serverTodos => {
         setTodos(serverTodos);
-        setFilteredTodos(serverTodos);
       })
       .catch(errorMessageHandler);
   }, []);
 
-  useEffect(() => {
+  const filteredTodos = () => {
     let filteredTD = todos;
 
     if (filterBy !== 'all') {
@@ -86,8 +84,8 @@ export const App: React.FC = () => {
       );
     }
 
-    setFilteredTodos(filteredTD);
-  }, [filterBy, todos]);
+    return filteredTD;
+  };
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -108,7 +106,7 @@ export const App: React.FC = () => {
         />
 
         <TodoList
-          renderedList={filteredTodos}
+          renderedList={filteredTodos()}
           tempTodo={tempTodo}
           idsToDelete={idsToDelete}
           resetIdsToDelete={setIdsToDelete}

@@ -33,7 +33,6 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               title={title}
               status={completed}
-              key={id}
               id={id}
               onError={onError}
               userId={userId}

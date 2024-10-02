@@ -6,7 +6,6 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 interface Props {
   renderedList: Todo[];
-  todos: Todo[];
   tempTodo: Todo | null;
   idsToDelete: number[] | null;
   onError: (error: Error) => void;
@@ -64,7 +63,6 @@ export const TodoList: React.FC<Props> = ({
                 {tempTodo.title}
               </span>
 
-              {/* Remove button appears only on hover */}
               <button
                 type="button"
                 className="todo__remove"
@@ -73,7 +71,6 @@ export const TodoList: React.FC<Props> = ({
                 ×
               </button>
 
-              {/* overlay will cover the todo while it is being deleted or updated */}
               <div
                 data-cy="TodoLoader"
                 className={classNames('modal overlay', { 'is-active': true })}

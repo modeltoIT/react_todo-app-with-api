@@ -80,7 +80,6 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this button should have `active` class only if all todos are completed */}
       {!!todos.length && (
         <button
           type="button"
@@ -91,7 +90,6 @@ export const Header: React.FC<Props> = ({
           onClick={btnHandler}
         />
       )}
-      {/* Add a todo on form submit */}
       <form>
         <input
           data-cy="NewTodoField"

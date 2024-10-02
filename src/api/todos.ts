@@ -9,7 +9,6 @@ export const getTodos = () => {
   });
 };
 
-// Add more methods here
 export const addTodo = (data: Omit<Todo, 'id'>): Promise<Todo> => {
   if (!data.title) {
     return Promise.reject('Title should not be empty');

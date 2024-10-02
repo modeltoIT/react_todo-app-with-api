@@ -110,7 +110,6 @@ export const App: React.FC = () => {
         <TodoList
           renderedList={filteredTodos}
           tempTodo={tempTodo}
-          todos={todos}
           idsToDelete={idsToDelete}
           resetIdsToDelete={setIdsToDelete}
           onError={errorMessageHandler}
@@ -119,7 +118,6 @@ export const App: React.FC = () => {
           idsForStatusChange={idsForStatusChange}
         />
 
-        {/* Hide the footer if there are no todos */}
         {(tempTodo || !!todos.length) && (
           <Footer
             filterBy={filterBy}
@@ -130,8 +128,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* DON'T use conditional rendering to hide the notification */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorMessage
         errorMessage={errorMessage}
         removeError={removeErrorMessage}

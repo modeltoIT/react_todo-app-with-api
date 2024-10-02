@@ -13,7 +13,6 @@ interface Props {
   handleDelete: (id: number) => void;
   handleUpdate: (todo: Todo) => Promise<void>;
   idsForStatusChange: number[];
-  setIdsForStatusChange: (ids: number[]) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -25,7 +24,6 @@ export const TodoList: React.FC<Props> = ({
   handleDelete,
   handleUpdate,
   idsForStatusChange,
-  setIdsForStatusChange,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -42,7 +40,6 @@ export const TodoList: React.FC<Props> = ({
           handleDelete={handleDelete}
           handleUpdate={handleUpdate}
           idsForStatusChange={idsForStatusChange}
-          setIdsForStatusChange={setIdsForStatusChange}
         />
       ))}
 
@@ -77,33 +74,6 @@ export const TodoList: React.FC<Props> = ({
           </div>
         </div>
       )}
-
-      {/*/!* This todo is being edited *!/*/}
-      {/*<div data-cy="TodoItem.tsx" className="todo">*/}
-      {/*  <label className="todo__status-label">*/}
-      {/*    <input*/}
-      {/*      data-cy="TodoStatus"*/}
-      {/*      type="checkbox"*/}
-      {/*      className="todo__status"*/}
-      {/*    />*/}
-      {/*  </label>*/}
-
-      {/*  /!* This form is shown instead of the title and remove button *!/*/}
-      {/*  <form>*/}
-      {/*    <input*/}
-      {/*      data-cy="TodoTitleField"*/}
-      {/*      type="text"*/}
-      {/*      className="todo__title-field"*/}
-      {/*      placeholder="Empty todo will be deleted"*/}
-      {/*      value="TodoItem.tsx is being edited now"*/}
-      {/*    />*/}
-      {/*  </form>*/}
-
-      {/*  <div data-cy="TodoLoader" className="modal overlay">*/}
-      {/*    <div className="modal-background has-background-white-ter" />*/}
-      {/*    <div className="loader" />*/}
-      {/*  </div>*/}
-      {/*</div>*/}
     </section>
   );
 };

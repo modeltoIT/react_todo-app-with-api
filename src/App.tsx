@@ -61,7 +61,11 @@ export const App: React.FC = () => {
           }),
         );
       })
-      .catch(errorMessageHandler);
+      .catch((error: Error) => {
+        errorMessageHandler(error);
+
+        throw new Error('');
+      });
   };
 
   useEffect(() => {
@@ -113,7 +117,6 @@ export const App: React.FC = () => {
           handleDelete={handleDelete}
           handleUpdate={handleUpdate}
           idsForStatusChange={idsForStatusChange}
-          setIdsForStatusChange={setIdsForStatusChange}
         />
 
         {/* Hide the footer if there are no todos */}

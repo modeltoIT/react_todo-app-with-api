@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import * as action from '../api/todos';
 import { Todo } from '../types/Todo';
@@ -31,10 +31,12 @@ export const TodoItem: React.FC<Props> = ({
   const [value, setValue] = useState(title);
   const [deletedTodoId, setDeletedTodoId] = useState(0);
   const [isToggling, setIsToggling] = useState(false);
+  const [editFormIsShown, setEditFormIsShown] = useState(false);
+  const editInput = useRef<HTMLInputElement>(null);
 
   const deleteTodos = (todoId: number) => action.deleteTodo(todoId);
 
-  const deleteTodo: React.MouseEventHandler<HTMLButtonElement> = () => {
+  const deleteTodo = () => {
     setDeletedTodoId(id);
 
     deleteTodos(id)
@@ -56,18 +58,60 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [idsToDelete]);
 
-  const toggleHandler = () => {
+  const updateTodo = (newTitle?: string, newStatus = !status) => {
     setIsToggling(!isToggling);
-    handleUpdate({ id, title, userId, completed: !status }).finally(() =>
-      setIsToggling(isToggling),
-    );
+    handleUpdate({
+      id,
+      title: newTitle || title,
+      userId,
+      completed: newStatus,
+    })
+      .then(() => setEditFormIsShown(false))
+      .catch(() => {
+        editInput.current?.focus();
+      })
+      .finally(() => setIsToggling(isToggling));
   };
 
   useEffect(() => {
     if (idsForStatusChange?.includes(id)) {
-      toggleHandler();
+      updateTodo();
     }
   }, [idsForStatusChange]);
+
+  const changeTitle = () => {
+    const trimmedTitle = value.trim();
+
+    setValue(trimmedTitle);
+
+    if (!trimmedTitle) {
+      deleteTodo();
+
+      return;
+    }
+
+    if (trimmedTitle === title) {
+      setEditFormIsShown(false);
+
+      return;
+    }
+
+    updateTodo(trimmedTitle, status);
+  };
+
+  const onEnter: React.KeyboardEventHandler<HTMLInputElement> = event => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      changeTitle();
+    }
+  };
+
+  const onEscape: React.KeyboardEventHandler<HTMLInputElement> = event => {
+    if (event.key === 'Escape') {
+      setValue(title);
+      setEditFormIsShown(false);
+    }
+  };
 
   return (
     <div data-cy="Todo" className={classNames('todo', { completed: status })}>
@@ -79,25 +123,47 @@ export const TodoItem: React.FC<Props> = ({
           value={value}
           checked={status}
           onChange={event => setValue(event.target.value)}
-          onClick={toggleHandler}
+          onClick={() => updateTodo()}
           aria-label="Todo input field"
         />
       </label>
+      {editFormIsShown ? (
+        <form>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            ref={editInput}
+            value={value}
+            onKeyDown={onEnter}
+            onKeyUp={onEscape}
+            autoFocus
+            onBlur={() => changeTitle()}
+            onChange={event => setValue(event.target.value)}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setEditFormIsShown(true)}
+          >
+            {value}
+          </span>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {value}
-      </span>
-
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={deleteTodo}
-      >
-        ×
-      </button>
-
+          {/* Remove button appears only on hover */}
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => deleteTodo()}
+          >
+            ×
+          </button>
+        </>
+      )}
       {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"

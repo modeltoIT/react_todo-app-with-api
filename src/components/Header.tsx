@@ -26,7 +26,7 @@ export const Header: React.FC<Props> = ({
   const isAllCompleted = !todos.some(todo => !todo.completed);
 
   useEffect(() => {
-    if (input.current) {
+    if (input.current && errorMessage !== 'Unable to update a todo') {
       input.current.focus();
     }
   }, [todos, errorMessage]);

@@ -2,6 +2,7 @@ import React from 'react';
 import { TodoItem } from './TodoItem';
 import { Todo } from '../types/Todo';
 import classNames from 'classnames';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 interface Props {
   renderedList: Todo[];
@@ -27,53 +28,63 @@ export const TodoList: React.FC<Props> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {renderedList.map(({ id, title, completed, userId }) => (
-        <TodoItem
-          title={title}
-          status={completed}
-          key={id}
-          id={id}
-          onError={onError}
-          userId={userId}
-          idsToDelete={idsToDelete}
-          resetIdsToDelete={resetIdsToDelete}
-          handleDelete={handleDelete}
-          handleUpdate={handleUpdate}
-          idsForStatusChange={idsForStatusChange}
-        />
-      ))}
-
-      {tempTodo && (
-        <div data-cy="Todo" className="todo">
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              value={tempTodo.title}
-              aria-label="Todo input field"
+      <TransitionGroup>
+        {renderedList.map(({ id, title, completed, userId }) => (
+          <CSSTransition key={id} timeout={300} classNames="item">
+            <TodoItem
+              title={title}
+              status={completed}
+              key={id}
+              id={id}
+              onError={onError}
+              userId={userId}
+              idsToDelete={idsToDelete}
+              resetIdsToDelete={resetIdsToDelete}
+              handleDelete={handleDelete}
+              handleUpdate={handleUpdate}
+              idsForStatusChange={idsForStatusChange}
             />
-          </label>
+          </CSSTransition>
+        ))}
 
-          <span data-cy="TodoTitle" className="todo__title">
-            {tempTodo.title}
-          </span>
+        {tempTodo && (
+          <CSSTransition key={0} timeout={300} classNames="temp-item">
+            <div data-cy="Todo" className="todo">
+              <label className="todo__status-label">
+                <input
+                  data-cy="TodoStatus"
+                  type="checkbox"
+                  className="todo__status"
+                  value={tempTodo.title}
+                  aria-label="Todo input field"
+                />
+              </label>
 
-          {/* Remove button appears only on hover */}
-          <button type="button" className="todo__remove" data-cy="TodoDelete">
-            ×
-          </button>
+              <span data-cy="TodoTitle" className="todo__title">
+                {tempTodo.title}
+              </span>
 
-          {/* overlay will cover the todo while it is being deleted or updated */}
-          <div
-            data-cy="TodoLoader"
-            className={classNames('modal overlay', { 'is-active': true })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
-      )}
+              {/* Remove button appears only on hover */}
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDelete"
+              >
+                ×
+              </button>
+
+              {/* overlay will cover the todo while it is being deleted or updated */}
+              <div
+                data-cy="TodoLoader"
+                className={classNames('modal overlay', { 'is-active': true })}
+              >
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            </div>
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };
